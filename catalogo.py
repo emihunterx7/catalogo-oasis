@@ -2,6 +2,9 @@ from flask import Flask, render_template_string, request
 import sqlite3
 import os
 
+# 1. IMPORTAMOS TU NUEVO ARCHIVO DE VISITAS AQUÍ:
+import vistas
+
 app = Flask(__name__)
 
 # ==========================================
