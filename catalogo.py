@@ -14,9 +14,9 @@ app = Flask(__name__)
 BANNER_OFERTAS = [
     {
        "titulo": "🔥 ¡Nuevos Ingresos!",
-        "descripcion": "MAPLE DE HUEVO BLANCO $4800 ",
+        "descripcion": "OFERTA DE LA SEMANA ",
         "imagen": "https://raw.githubusercontent.com/emihunterx7/catalogo-oasis/11f042053004aa1188c218acd5a5ffc7c76805cc/oferta%20huevos.png",
-        "badge": "OFERTA DE LA SEMANA"
+        "badge": "MAPLE HUEVO BLANCO $ 4800"
     },
     {
         "titulo": "⚡ Ofertas de la Semana",
