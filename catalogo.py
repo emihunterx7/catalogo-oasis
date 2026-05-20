@@ -22,7 +22,7 @@ BANNER_OFERTAS = [
         "titulo": "⚡ Ofertas de la Semana",
         "descripcion": "Descuentos brutales pagando mediante transferencia con Mercado Pago.",
         "imagen": "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&auto=format&fit=crop&q=60",
-        "badge": "PROMO 10%"
+        "badge": ""
     },
     {
         "titulo": "📦 Envíos y Retiros",
