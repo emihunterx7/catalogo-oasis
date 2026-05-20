@@ -16,7 +16,7 @@ BANNER_OFERTAS = [
         "titulo": "🔥 ¡Nuevos Ingresos Anime!",
         "descripcion": "Llegaron las últimas figuras exclusivas. ¡No te quedes sin la tuya!",
         "imagen": "https://raw.githubusercontent.com/emihunterx7/catalogo/main/oferta%20huevos.png",
-        "badge": "NUEVO"
+        "badge": "preeva"
     },
     {
         "titulo": "⚡ Ofertas de la Semana",
