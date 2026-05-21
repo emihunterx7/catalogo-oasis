@@ -8,6 +8,9 @@ iniciar_contador_en_catalogo(app)
 
 app = Flask(__name__)
 
+# 🚀 AGREGÁ ESTA LÍNEA JUSTO ACÁ ABAJO:
+from vistas import iniciar_contador_en_catalogo; iniciar_contador_en_catalogo(app)
+
 # ==========================================
 # CONFIGURACIÓN DE BANNER / NOVEDADES
 # Podés cambiar los textos y links de imágenes acá abajo cuando quieras.
