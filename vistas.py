@@ -4,7 +4,7 @@ from supabase import create_client, Client
 
 # 1. CREDENCIALES DE SUPABASE
 SUPABASE_URL = "https://hkuheednquclcnjdfcva.supabase.co"
-SUPABASE_KEY = "ACÁ_PEGÁS_TU_CLAVE_PUBLISHABLE_LARGA"  # <-- Poné tu clave real acá
+SUPABASE_KEY = "sb_secret_SpX1qrPRMhmQPyEuzhGggw_98jTPk-y"  # <-- Poné tu clave real acá
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
