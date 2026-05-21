@@ -1,23 +1,32 @@
-from flask import request
+import os
+from supabase import create_client, Client
 
-# Reemplazá este número por la IP real de tu casa (de cualesmiip.com):
-IP_DE_MI_CASA = "181.44.XX.XX" 
+# Configuración de credenciales de Supabase
+SUPABASE_URL = "TU_SUPABASE_URL"
+SUPABASE_KEY = "TU_SUPABASE_ANON_KEY"
 
-def configurar_contador_visitas(app):
+# Inicializamos el cliente de Supabase
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def registrar_y_obtener_visitas(pagina_id="home"):
     """
-    Registra en los logs de Render a los clientes que entran
-    al catálogo, usando el encabezado correcto de Render.
+    Incrementa el contador en Supabase mediante RPC y devuelve el total actualizado.
     """
-    @app.before_request
-    def registrar_visita():
-        if request.path == '/':
-            # Modificamos esto para obligar a leer la IP externa real que pasa Render
-            ip_visitante = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
-            
-            # Si no encuentra ninguna arriba, usa la básica por las dudas
-            if not ip_visitante:
-                ip_visitante = request.remote_addr
-            
-            # Si la IP es real, y no eres tú ni el localhost interno de Render
-            if ip_visitante and ip_visitante != IP_DE_MI_CASA and ip_visitante != "127.0.0.1" and ip_visitante != "localhost":
-                print(f"[VISITA_CLIENTE] - Nueva entrada desde la IP: {ip_visitante}", flush=True)
+    try:
+        # 1. Llamamos a la función que creamos en Supabase para sumar 1 de forma segura
+        supabase.rpc("incrementar_visitas", {"pagina_id": pagina_id}).execute()
+        
+        # 2. Traemos el valor que quedó guardado tras la actualización
+        response = supabase.table("contador_visitas") \
+                           .select("visitas") \
+                           .eq("id", pagina_id) \
+                           .single() \
+                           .execute()
+        
+        if response.data:
+            return response.data.get("visitas", 0)
+        return 0
+        
+    except Exception as e:
+        print(f"Error al conectar con el contador de Supabase: {e}")
+        return None
