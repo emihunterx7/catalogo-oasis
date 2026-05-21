@@ -2,30 +2,20 @@ import os
 from flask import request, g
 from supabase import create_client, Client
 
-# =========================================================
-# 1. CONFIGURACIÓN DE CREDENCIALES DE SUPABASE
-# =========================================================
+# 1. CREDENCIALES DE SUPABASE
 SUPABASE_URL = "https://hkuheednquclcnjdfcva.supabase.co"
-SUPABASE_KEY = "ACÁ_PEGÁS_TU_CLAVE_PUBLISHABLE_LARGA"  # <-- Tu clave de siempre
+SUPABASE_KEY = "ACÁ_PEGÁS_TU_CLAVE_PUBLISHABLE_LARGA"  # <-- Tu clave real de siempre
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# =========================================================
-# 2. FUNCIÓN PARA INYECTAR LAS VISITAS EN TU CATÁLOGO
-# =========================================================
+# 2. INYECTOR AUTOMÁTICO
 def iniciar_contador_en_catalogo(app):
-    """
-    Se conecta a tu app de Flask y maneja las visitas de forma automática
-    sin que tengas que escribir código adentro de catalogo.py
-    """
     
-    # Esto se ejecuta automáticamente CADA VEZ que alguien entra a la web
     @app.before_request
     def procesar_visita():
-        # Solo contamos si entran a la página principal "/"
         if request.path == "/":
             try:
-                # Sumamos 1 en Supabase
+                # Sumamos la visita en Supabase
                 supabase.rpc("incrementar_visitas", {"pagina_id": "home"}).execute()
                 
                 # Traemos el total actualizado
@@ -36,14 +26,40 @@ def iniciar_contador_en_catalogo(app):
                                    .execute()
                 
                 if response.data:
-                    g.visitas_total = f"Visitas: {response.data.get('visitas', 0)}"
+                    g.visitas_total = str(response.data.get('visitas', 0))
                 else:
-                    g.visitas_total = "Visitas: ---"
+                    g.visitas_total = "---"
             except Exception as e:
                 print(f"Error en contador Supabase: {e}")
-                g.visitas_total = "Visitas: ---"
+                g.visitas_total = "---"
 
-    # Esto hace que la variable 'visitas' esté disponible en TODO tu HTML automáticamente
-    @app.context_processor
-    def inyectar_variable_html():
-        return dict(visitas=getattr(g, 'visitas_total', "Visitas: ---"))
+    # Modificamos la respuesta final de la página para pegarle el HTML aparte sin tocar catalogo.py
+    @app.after_request
+    def inyectar_html_contador(response):
+        # Solo modificamos si la página cargó bien y es el Home HTML
+        if response.status_code == 200 and response.mimetype == "text/html" and request.path == "/":
+            try:
+                # Buscamos la ruta del archivo contador.html
+                ruta_html = os.path.join(os.path.dirname(os.path.abspath(__file__)), "contador.html")
+                
+                if os.path.exists(ruta_html):
+                    with open(ruta_html, "r", encoding="utf-8") as f:
+                        html_contador = f.read()
+                    
+                    # Reemplazamos la variable del HTML por el número real de visitas
+                    numero_visitas = getattr(g, 'visitas_total', "---")
+                    html_contador = html_contador.replace("{{ visitas }}", f"Visitas: {numero_visitas}")
+                    
+                    # Obtenemos el texto original de tu catálogo
+                    data_original = response.get_data(as_text=True)
+                    
+                    # Le pegamos nuestro cartelito justo antes de que termine el cuerpo de la página
+                    if "</body>" in data_original:
+                        nueva_data = data_original.replace("</body>", f"{html_contador}\n</body>")
+                    else:
+                        nueva_data = data_original + html_contador
+                    
+                    response.set_data(nueva_data)
+            except Exception as e:
+                print(f"No se pudo inyectar el HTML del contador: {e}")
+        return response
