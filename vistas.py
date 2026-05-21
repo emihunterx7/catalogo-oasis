@@ -1,32 +1,49 @@
 import os
+from flask import request, g
 from supabase import create_client, Client
 
-# Configuración de credenciales de Supabase
-SUPABASE_URL = "TU_SUPABASE_URL"
-SUPABASE_KEY = "TU_SUPABASE_ANON_KEY"
+# =========================================================
+# 1. CONFIGURACIÓN DE CREDENCIALES DE SUPABASE
+# =========================================================
+SUPABASE_URL = "https://hkuheednquclcnjdfcva.supabase.co"
+SUPABASE_KEY = "ACÁ_PEGÁS_TU_CLAVE_PUBLISHABLE_LARGA"  # <-- Tu clave de siempre
 
-# Inicializamos el cliente de Supabase
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def registrar_y_obtener_visitas(pagina_id="home"):
+# =========================================================
+# 2. FUNCIÓN PARA INYECTAR LAS VISITAS EN TU CATÁLOGO
+# =========================================================
+def iniciar_contador_en_catalogo(app):
     """
-    Incrementa el contador en Supabase mediante RPC y devuelve el total actualizado.
+    Se conecta a tu app de Flask y maneja las visitas de forma automática
+    sin que tengas que escribir código adentro de catalogo.py
     """
-    try:
-        # 1. Llamamos a la función que creamos en Supabase para sumar 1 de forma segura
-        supabase.rpc("incrementar_visitas", {"pagina_id": pagina_id}).execute()
-        
-        # 2. Traemos el valor que quedó guardado tras la actualización
-        response = supabase.table("contador_visitas") \
-                           .select("visitas") \
-                           .eq("id", pagina_id) \
-                           .single() \
-                           .execute()
-        
-        if response.data:
-            return response.data.get("visitas", 0)
-        return 0
-        
-    except Exception as e:
-        print(f"Error al conectar con el contador de Supabase: {e}")
-        return None
+    
+    # Esto se ejecuta automáticamente CADA VEZ que alguien entra a la web
+    @app.before_request
+    def procesar_visita():
+        # Solo contamos si entran a la página principal "/"
+        if request.path == "/":
+            try:
+                # Sumamos 1 en Supabase
+                supabase.rpc("incrementar_visitas", {"pagina_id": "home"}).execute()
+                
+                # Traemos el total actualizado
+                response = supabase.table("contador_visitas") \
+                                   .select("visitas") \
+                                   .eq("id", "home") \
+                                   .single() \
+                                   .execute()
+                
+                if response.data:
+                    g.visitas_total = f"Visitas: {response.data.get('visitas', 0)}"
+                else:
+                    g.visitas_total = "Visitas: ---"
+            except Exception as e:
+                print(f"Error en contador Supabase: {e}")
+                g.visitas_total = "Visitas: ---"
+
+    # Esto hace que la variable 'visitas' esté disponible en TODO tu HTML automáticamente
+    @app.context_processor
+    def inyectar_variable_html():
+        return dict(visitas=getattr(g, 'visitas_total', "Visitas: ---"))

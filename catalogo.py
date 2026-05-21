@@ -2,11 +2,9 @@ from flask import Flask, render_template_string, request
 import sqlite3
 import os
 
-# =========================================================
-# 1. TUS IMPORTS (Colocalo al principio de todo el archivo)
-# =========================================================
-# (Acá irían tus otros imports como tkinter, os, etc.)
-from vistas import registrar_y_obtener_visitas  # <--- AQUÍ SE INCLUYE TU ARCHIVO CORREGIDO
+# Abajo de todo en tu catalogo.py, donde creás la app de Flask:
+from vistas import iniciar_contador_en_catalogo
+iniciar_contador_en_catalogo(app)
 
 app = Flask(__name__)
 
