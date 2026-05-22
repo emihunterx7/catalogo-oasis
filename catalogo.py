@@ -22,14 +22,14 @@ BANNER_OFERTAS = [
         "badge": "OFERTA DE LA SEMANA"
     },
     {
-        "titulo": "⚡ Ofertas de la Semana",
-        "descripcion": "Descuentos brutales pagando mediante transferencia con Mercado Pago.",
+        "titulo": "⚡ ",
+        "descripcion": "",
         "imagen": "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&auto=format&fit=crop&q=60",
         "badge": ""
     },
     {
-        "titulo": "📦 Envíos y Retiros",
-        "descripcion": "Armá tu carrito, mandanos el pedido por WhatsApp y coordinamos al toque.",
+        "titulo": "📦 ",
+        "descripcion": "",
         "imagen": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=800&auto=format&fit=crop&q=60",
         "badge": "INFO"
     }
