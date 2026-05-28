@@ -1,10 +1,16 @@
 from flask import Flask, render_template_string, request
 import sqlite3
 import os
-
+import psycopg2 
 
 
 app = Flask(__name__)
+
+# --- CONFIGURACIÓN DE CONEXIÓN A SUPABASE ---
+# Es recomendable usar una variable de entorno para no exponer la contraseña
+# Si no la usas, reemplaza el texto con tu URL real.
+
+DATABASE_URL = "postgresql://postgres:D*6hisi+67idKP.@db.hkuheednquclcnjdfcva.supabase.co:5432/postgres"
 
 # 🚀 CONEXIÓN CON EL CONTADOR EN VIVO
 from vistas import iniciar_contador_en_catalogo
