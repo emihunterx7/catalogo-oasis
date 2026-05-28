@@ -4,7 +4,7 @@ import os
 import psycopg2 
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # --- CONFIGURACIÓN DE CONEXIÓN A SUPABASE ---
 # Es recomendable usar una variable de entorno para no exponer la contraseña
@@ -535,7 +535,7 @@ PLANTILLA_PRODUCTOS_AJAX = """
                                 {% if prod[3] <= 0 %}
                                     <div class="badge-agotado">Agotado</div>
                                 {% endif %}
-                             <img class="img-producto" src="{{ url_for('static', filename='imagenes/' + prod[5]) }}" alt="{{ prod[1] }}"> 
+                        <img class="img-producto" src="{{ url_for('static', filename=prod[5].replace('imagenes/', '')) }}" alt="{{ prod[1] }}"> 
                             </div>
                             <div class="info-contenedor">
                                 <div class="nombre">{{ prod[1] }}</div>
