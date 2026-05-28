@@ -3,8 +3,8 @@ import os
 from supabase import create_client
 
 # 1. Usamos variables de entorno para mayor seguridad (ya no pegues tu clave aquí)
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
+url = os.environ.get("https://hkuheednquclcnjdfcva.supabase.co")
+key = os.environ.get("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrdWhlZWRucXVjbGNuamRmY3ZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMjI1NzYsImV4cCI6MjA5NDY5ODU3Nn0.Pm2pU1NuSKDT0h87xxBo3hnm8TYLmINqvMWZkVsEGpA")
 supabase = create_client(url, key)
 
 def sincronizar_db():
