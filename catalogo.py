@@ -4,7 +4,7 @@ import os
 import psycopg2 
 
 
-app = Flask(__name__, static_folder='static')
+app = Flask(__name__)
 
 # --- CONFIGURACIÓN DE CONEXIÓN A SUPABASE ---
 # Es recomendable usar una variable de entorno para no exponer la contraseña
@@ -72,37 +72,35 @@ def obtener_productos_con_categorias(busqueda=""):
         "7": "JUGUETES Y FIGURAS", "8": "PAPELERIA"
     }
 
-    conexion = psycopg2.connect(DATABASE_URL)
-    cursor = conexion.cursor()
-    
-    # Seleccionamos las columnas tal cual están en tu base de datos
-    consulta = "SELECT id, nombre, precio, stock, categoria, imagen FROM productos WHERE 1=1"
-    
-    parametros = []
-    if busqueda:
-        consulta += " AND nombre ILIKE %s"
-        parametros.append(f"%{busqueda}%")
+    try:
+        conexion = psycopg2.connect(DATABASE_URL)
+        cursor = conexion.cursor()
         
-    cursor.execute(consulta, parametros)
-    filas = cursor.fetchall()
-    conexion.close()
-    
+        consulta = "SELECT id, nombre, precio, stock, categoria, imagen FROM productos WHERE 1=1"
+        parametros = []
+        if busqueda:
+            consulta += " AND nombre ILIKE %s"
+            parametros.append(f"%{busqueda}%")
+            
+        cursor.execute(consulta, parametros)
+        filas = cursor.fetchall() # Aquí se define 'filas'
+        conexion.close()
+    except Exception as e:
+        print(f"Error en la base de datos: {e}")
+        return [] # Retorna una lista vacía si falla, evitando que el programa se rompa
+
+    # Procesamos solo si 'filas' fue definido correctamente
     productos_procesados = []
     for f in filas:
         p_id, nombre, precio, stock, cat_id, img_nombre = f
-        
-        # 1. Asignar nombre de categoría
         nombre_cat = mapeo_cat.get(str(cat_id), "SIN CATEGORIA")
         
-        # 2. Construir la ruta de la imagen correctamente
-        # Asumimos que tus archivos están en static/imagenes/
-        ruta_img = f"imagenes/{img_nombre}" if img_nombre else "placeholder.png"
+        # Usamos tu función que busca el archivo en el disco
+        ruta_img = encontrar_imagen_producto(p_id) 
         
         productos_procesados.append((p_id, nombre, precio, stock, nombre_cat, ruta_img))
         
     return productos_procesados
-# 3. MÁS ABAJO, DONDE TENGAS TU RUTA DE FLASK (ej: @app.route('/'))
-# Asegúrate de que la ruta llame a esta nueva función.
 
 # Interfaz Web Principal
 PLANTILLA_HTML = """
@@ -535,7 +533,10 @@ PLANTILLA_PRODUCTOS_AJAX = """
                                 {% if prod[3] <= 0 %}
                                     <div class="badge-agotado">Agotado</div>
                                 {% endif %}
-                        <img class="img-producto" src="{{ url_for('static', filename=prod[5].replace('imagenes/', '')) }}" alt="{{ prod[1] }}"> 
+          
+                   <!-- Cambia tu línea actual por esta -->
+    <!-- Cambia la línea de la imagen por esta línea más limpia -->
+    <img class="img-producto" src="{{ prod[5] }}" alt="{{ prod[1] }}">
                             </div>
                             <div class="info-contenedor">
                                 <div class="nombre">{{ prod[1] }}</div>
