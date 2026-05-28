@@ -56,36 +56,34 @@ def encontrar_imagen_producto(producto_id):
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
 def obtener_productos_con_categorias(busqueda=""):
-    """Lee todos los productos uniendo con categorías para el catálogo."""
-    ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_db = os.path.join(ruta_actual, "productos.db")
-    
-    conexion = sqlite3.connect(ruta_db)
+    """Lee todos los productos desde SUPABASE usando psycopg2."""
+    # 1. Conexión a la base de datos en la nube (usando la variable global DATABASE_URL)
+    conexion = psycopg2.connect(DATABASE_URL)
     cursor = conexion.cursor()
     
+    # 2. Consulta SQL adaptada para PostgreSQL
+    # Usamos comillas dobles para los nombres de tablas y columnas (necesario si fueron creadas con mayúsculas)
     consulta = """
         SELECT 
-            p.ProductoId, 
-            p.Nombre, 
-            p.Precio, 
-            p.Stock, 
-            c.Nombre AS Categoria
-        FROM Productos p
-        LEFT JOIN Categorias c ON p.CategoriaId = c.CategoriaId
+            p."ProductoId", p."Nombre", p."Precio", p."Stock", c."Nombre" 
+        FROM "Productos" p
+        LEFT JOIN "Categorias" c ON p."CategoriaId" = c."CategoriaId"
         WHERE 1=1
     """
     
     parametros = []
     if busqueda:
-        consulta += " AND p.Nombre LIKE ? "
+        # En Postgres usamos ILIKE para búsqueda insensible a mayúsculas y %s para los parámetros
+        consulta += " AND p.\"Nombre\" ILIKE %s "
         parametros.append(f"%{busqueda}%")
         
-    consulta += " ORDER BY c.Nombre, p.Nombre;"
+    consulta += " ORDER BY c.\"Nombre\", p.\"Nombre\";"
     
     cursor.execute(consulta, parametros)
     filas = cursor.fetchall()
     conexion.close()
     
+    # 3. Procesamiento de los datos para que el resto de tu web los entienda igual que antes
     productos_procesados = []
     for f in filas:
         p_id = f[0]
@@ -93,6 +91,7 @@ def obtener_productos_con_categorias(busqueda=""):
         precio = f[2]
         stock = f[3]
         categoria = f[4]
+        # Esta función la mantienes igual, no se toca
         ruta_img = encontrar_imagen_producto(p_id)
         
         productos_procesados.append((p_id, nombre, precio, stock, categoria, ruta_img))
