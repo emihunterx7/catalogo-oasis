@@ -55,42 +55,54 @@ def encontrar_imagen_producto(producto_id):
                 
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
+# --- EN TU ARCHIVO app.py ---
+
+# 1. PEGA EL MAPEO AQUÍ (fuera de las funciones, arriba de todo)
+mapeo_cat = {
+    "1": "GALLETITAS", "2": "LIMPIEZA", "3": "FARMACIA",
+    "4": "KIOSCO", "5": "BEBIDAS", "6": "LIBRERIA", 
+    "7": "JUGUETES Y FIGURAS", "8": "PAPELERIA"
+}
+
+# 2. REEMPLAZA TU FUNCIÓN VIEJA POR ESTA
 def obtener_productos_con_categorias(busqueda=""):
-    """Lee productos directamente de tu tabla de Supabase."""
+    mapeo_cat = {
+        "1": "GALLETITAS", "2": "LIMPIEZA", "3": "FARMACIA",
+        "4": "KIOSCO", "5": "BEBIDAS", "6": "LIBRERIA", 
+        "7": "JUGUETES Y FIGURAS", "8": "PAPELERIA"
+    }
+
     conexion = psycopg2.connect(DATABASE_URL)
     cursor = conexion.cursor()
     
-    # Consulta simple a tu única tabla
-    consulta = """
-        SELECT id, nombre, precio, stock, categoria 
-        FROM productos
-        WHERE 1=1
-    """
+    # Seleccionamos las columnas tal cual están en tu base de datos
+    consulta = "SELECT id, nombre, precio, stock, categoria, imagen FROM productos WHERE 1=1"
     
     parametros = []
     if busqueda:
-        consulta += " AND nombre ILIKE %s "
+        consulta += " AND nombre ILIKE %s"
         parametros.append(f"%{busqueda}%")
         
-    consulta += " ORDER BY categoria, nombre;"
-    
     cursor.execute(consulta, parametros)
     filas = cursor.fetchall()
     conexion.close()
     
     productos_procesados = []
     for f in filas:
-        p_id = f[0]
-        nombre = f[1]
-        precio = f[2]
-        stock = f[3]
-        categoria = f[4]
-        # Usamos tu función existente para la imagen
-        ruta_img = encontrar_imagen_producto(p_id)
+        p_id, nombre, precio, stock, cat_id, img_nombre = f
         
-        productos_procesados.append((p_id, nombre, precio, stock, categoria, ruta_img))
+        # 1. Asignar nombre de categoría
+        nombre_cat = mapeo_cat.get(str(cat_id), "SIN CATEGORIA")
+        
+        # 2. Construir la ruta de la imagen correctamente
+        # Asumimos que tus archivos están en static/imagenes/
+        ruta_img = f"imagenes/{img_nombre}" if img_nombre else "placeholder.png"
+        
+        productos_procesados.append((p_id, nombre, precio, stock, nombre_cat, ruta_img))
         
     return productos_procesados
+# 3. MÁS ABAJO, DONDE TENGAS TU RUTA DE FLASK (ej: @app.route('/'))
+# Asegúrate de que la ruta llame a esta nueva función.
 
 # Interfaz Web Principal
 PLANTILLA_HTML = """
@@ -523,7 +535,7 @@ PLANTILLA_PRODUCTOS_AJAX = """
                                 {% if prod[3] <= 0 %}
                                     <div class="badge-agotado">Agotado</div>
                                 {% endif %}
-                                <img class="img-producto" src="{{ prod[5] }}" alt="{{ prod[1] }}">
+                             <img class="img-producto" src="{{ url_for('static', filename='imagenes/' + prod[5]) }}" alt="{{ prod[1] }}"> 
                             </div>
                             <div class="info-contenedor">
                                 <div class="nombre">{{ prod[1] }}</div>
