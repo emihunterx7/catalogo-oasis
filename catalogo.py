@@ -42,21 +42,19 @@ BANNER_OFERTAS = [
 ]
 
 def encontrar_imagen_producto(producto_id):
-    # Aseguramos la ruta absoluta a la carpeta de imágenes
+    # La ruta dentro de Render será la carpeta donde se ejecuta el código
     carpeta_imagenes = os.path.join(os.getcwd(), "static", "imagenes")
-    extensiones = ['.jpg', '.jpeg', '.png', '.webp', '.PNG', '.JPG']
+    extensiones = ['.jpg', '.jpeg', '.png', '.webp']
 
-    if os.path.exists(carpeta_imagenes):
-        for ext in extensiones:
-            nombre_archivo = f"{producto_id}{ext}"
-            ruta_completa = os.path.join(carpeta_imagenes, nombre_archivo)
-            if os.path.exists(ruta_completa):
-                # Retornamos la ruta relativa para el navegador
-                return f"/static/imagenes/{nombre_archivo}"
+    if not os.path.exists(carpeta_imagenes):
+        return None # O retorna la URL de una imagen por defecto
+
+    for ext in extensiones:
+        nombre_archivo = f"{producto_id}{ext}"
+        if os.path.exists(os.path.join(carpeta_imagenes, nombre_archivo)):
+            return f"/static/imagenes/{nombre_archivo}"
     
-    # Si no hay imagen, retornamos None para que el HTML muestre "Sin Foto"
-    return None
-
+    return None # Retorna None si no hay imagen
 # --- EN TU ARCHIVO app.py ---
 
 # 1. PEGA EL MAPEO AQUÍ (fuera de las funciones, arriba de todo)
