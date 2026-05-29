@@ -41,19 +41,23 @@ BANNER_OFERTAS = [
     }
 ]
 
+import os
+
 def encontrar_imagen_producto(producto_id):
-    """Busca en la carpeta static/imagenes si existe el archivo con cualquier extensión."""
-    ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    carpeta_imagenes = os.path.join(ruta_actual, "static", "imagenes")
+    # Aseguramos la ruta absoluta a la carpeta de imágenes
+    carpeta_imagenes = os.path.join(os.getcwd(), "static", "imagenes")
     extensiones = ['.jpg', '.jpeg', '.png', '.webp', '.PNG', '.JPG']
-    
+
     if os.path.exists(carpeta_imagenes):
         for ext in extensiones:
             nombre_archivo = f"{producto_id}{ext}"
-            if os.path.exists(os.path.join(carpeta_imagenes, nombre_archivo)):
+            ruta_completa = os.path.join(carpeta_imagenes, nombre_archivo)
+            if os.path.exists(ruta_completa):
+                # Retornamos la ruta relativa para el navegador
                 return f"/static/imagenes/{nombre_archivo}"
-                
-    return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
+    
+    # Si no hay imagen, retornamos None para que el HTML muestre "Sin Foto"
+    return None
 
 # --- EN TU ARCHIVO app.py ---
 
