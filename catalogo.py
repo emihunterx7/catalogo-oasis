@@ -41,8 +41,6 @@ BANNER_OFERTAS = [
     }
 ]
 
-import os
-
 def encontrar_imagen_producto(producto_id):
     # Aseguramos la ruta absoluta a la carpeta de imágenes
     carpeta_imagenes = os.path.join(os.getcwd(), "static", "imagenes")
