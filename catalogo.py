@@ -10,7 +10,8 @@ app = Flask(__name__)
 # Es recomendable usar una variable de entorno para no exponer la contraseña
 # Si no la usas, reemplaza el texto con tu URL real.
 
-DATABASE_URL = "postgresql://postgres:D*6hisi+67idKP.@db.hkuheednquclcnjdfcva.supabase.co:5432/postgres"
+# Cambia el puerto 5432 por 6543
+DATABASE_URL = "postgresql://postgres:D*6hisi+67idKP.@db.hkuheednquclcnjdfcva.supabase.co:6543/postgres"
 
 # 🚀 CONEXIÓN CON EL CONTADOR EN VIVO
 from vistas import iniciar_contador_en_catalogo
