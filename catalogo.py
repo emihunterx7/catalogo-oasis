@@ -1,5 +1,4 @@
 from flask import Flask, render_template_string, request
-import sqlite3
 import psycopg2
 import os
 
