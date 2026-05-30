@@ -536,13 +536,13 @@ PLANTILLA_PRODUCTOS_AJAX = """
 @app.route('/')
 def home():
     try:
-        buscar_ajax = request.args.get('buscar_ajax', None)
-        
-        if buscar_ajax is not None:
-            lista_productos = obtener_productos_con_categorias(buscar_ajax)
-            return render_template_string(PLANTILLA_PRODUCTOS_AJAX, productos=lista_productos)
-        
+        # Intentamos obtener productos
         lista_productos = obtener_productos_con_categorias("")
+        
+        # DEBUG: Si la lista está vacía, avisamos
+        if not lista_productos:
+            return "<h1>Error: La consulta a Supabase fue exitosa, pero no se encontraron productos en la tabla 'productos'.</h1>"
+        
         html_productos_inicial = render_template_string(PLANTILLA_PRODUCTOS_AJAX, productos=lista_productos)
         
         return render_template_string(
@@ -551,7 +551,5 @@ def home():
             html_productos_inicial=html_productos_inicial
         )
     except Exception as e:
-        return f"<h3>Error al cargar el catálogo: {e}</h3>", 500
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+        # Esto te mostrará el error real en el navegador
+        return f"<h1>Error Crítico de Conexión:</h1><pre>{str(e)}</pre>"
