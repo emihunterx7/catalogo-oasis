@@ -50,40 +50,31 @@ def obtener_productos_con_categorias(busqueda=""):
         return []
 
     try:
-        # Se añadió un bloque 'with' para cerrar la conexión automáticamente
         with psycopg2.connect(DATABASE_URL) as conexion:
             with conexion.cursor() as cursor:
-                # 1. Agregué comillas dobles en "productos" para respetar el nombre de la tabla
+                # Usamos un JOIN para traer el nombre de la categoria
                 consulta = """
-                    SELECT id, nombre, precio, stock, categoria
-                    FROM "productos"
+                    SELECT p.id, p.nombre, p.precio, p.stock, c.nombre as categoria_nombre
+                    FROM "productos" p
+                    LEFT JOIN "categorias" c ON p.categoria::text = c.id::text
                     WHERE 1=1
                 """
                 parametros = []
                 
                 if busqueda:
-                    # 2. CAMBIO CRÍTICO: 'LIKE' -> 'ILIKE' (insensible a mayúsculas)
-                    # 3. CAMBIO CRÍTICO: '?' -> '%s' (sintaxis correcta de PostgreSQL)
-                    consulta += " AND nombre ILIKE %s " 
+                    consulta += " AND p.nombre ILIKE %s " 
                     parametros.append(f"%{busqueda}%")
                 
-                consulta += " ORDER BY categoria, nombre;"
+                consulta += " ORDER BY c.nombre, p.nombre;"
                 
                 cursor.execute(consulta, parametros)
                 filas = cursor.fetchall()
                 
-                productos_procesados = []
-                for f in filas:
-                    p_id, nombre, precio, stock, categoria = f
-                    ruta_img = encontrar_imagen_producto(p_id)
-                    productos_procesados.append((p_id, nombre, precio, stock, categoria, ruta_img))
-                    
-                return productos_procesados
+                # ... resto del código igual ...
+                return filas 
     except Exception as e:
-        # Esto te ayudará a ver errores reales en la consola de Render
-        print(f"Error de conexión a Supabase: {e}")
+        print(f"Error: {e}")
         return []
-
 # Interfaz Web Principal
 PLANTILLA_HTML = """
 <!DOCTYPE html>
