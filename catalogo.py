@@ -49,16 +49,22 @@ def encontrar_imagen_producto(producto_id):
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
 def obtener_productos_con_categorias(busqueda=""):
-    # En lugar de psycopg2, usamos la API de Supabase
-    query = supabase.table("productos").select("*")
-    
-    if busqueda:
-        query = query.ilike("nombre", f"%{busqueda}%")
-    
-    response = query.order("categoria").execute()
-    
-    # response.data contiene tus productos
-    return response.data
+    try:
+        query = supabase.table("productos").select("*")
+        if busqueda:
+            query = query.ilike("nombre", f"%{busqueda}%")
+        
+        response = query.order("categoria").execute()
+        
+        # ESTO ES LO IMPORTANTE:
+        print("--- RESULTADO DE SUPABASE ---")
+        print(response.data) 
+        
+        return response.data
+    except Exception as e:
+        print(f"--- ERROR EN SUPABASE ---")
+        print(e)
+        return []
 
 # Interfaz Web Principal
 PLANTILLA_HTML = """
