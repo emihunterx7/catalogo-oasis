@@ -18,7 +18,7 @@ BANNER_OFERTAS = [
         "titulo": "🔥 ¡Nuevos Ingresos Anime!",
         "descripcion": "Llegaron las últimas figuras exclusivas. ¡No te quedes sin la tuya!",
         "imagen": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60",
-        "badge": "NUEVO"
+        "badge": "huevo"
     },
     {
         "titulo": "⚡ Ofertas de la Semana",
