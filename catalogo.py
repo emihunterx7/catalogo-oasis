@@ -47,13 +47,15 @@ def obtener_productos_con_categorias(busqueda=""):
     # Render leerá la URL de la variable que configuraste en su panel
     DATABASE_URL = os.getenv("DATABASE_URL")
     
-    # Si por error no configuraste la variable en Render, esto ayuda a evitar errores
     if not DATABASE_URL:
         return []
 
+    # Usamos psycopg2 para conectar a PostgreSQL
     conexion = psycopg2.connect(DATABASE_URL)
     cursor = conexion.cursor()
     
+    # 1. La tabla es "productos" (en minúsculas, según tu Supabase)
+    # 2. El marcador de parámetros en PostgreSQL es %s, no ?
     consulta = """
         SELECT 
             p.id, 
@@ -61,13 +63,14 @@ def obtener_productos_con_categorias(busqueda=""):
             p.precio, 
             p.stock, 
             p.categoria
-        FROM Productos p
+        FROM productos p
         WHERE 1=1
     """
     
     parametros = []
     if busqueda:
-        consulta += " AND p.nombre LIKE ? "
+        # En PostgreSQL se usa ILIKE para buscar ignorando mayúsculas/minúsculas
+        consulta += " AND p.nombre ILIKE %s "
         parametros.append(f"%{busqueda}%")
         
     consulta += " ORDER BY p.categoria, p.nombre;"
@@ -78,14 +81,10 @@ def obtener_productos_con_categorias(busqueda=""):
     
     productos_procesados = []
     for f in filas:
-        p_id = f[0]
-        nombre = f[1]
-        precio = f[2]
-        stock = f[3]
-        categoria = f[4]
+        p_id, nombre, precio, stock, categoria = f
         ruta_img = encontrar_imagen_producto(p_id)
-        
-        productos_procesados.append((p_id, nombre, precio, stock, categoria, ruta_img))
+        # Convertimos a float para asegurar el formato de precio
+        productos_procesados.append((p_id, nombre, float(precio), stock, categoria, ruta_img))
         
     return productos_procesados
 
