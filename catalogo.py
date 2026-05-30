@@ -1,6 +1,11 @@
 from flask import Flask, render_template_string, request
 import psycopg2
 import os
+from supabase import create_client
+
+url = os.environ.get("https://hkuheednquclcnjdfcva.supabase.co")
+key = os.environ.get("sb_secret_P4yeqt85BP4Oo3zbJJYvww_rRjpIf0v")
+supabase = create_client(url, key)
 
 app = Flask(__name__)
 
@@ -44,41 +49,24 @@ def encontrar_imagen_producto(producto_id):
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
 def obtener_productos_con_categorias(busqueda=""):
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    # Usamos la API de Supabase en lugar de psycopg2
+    query = supabase.table("productos").select("*")
     
-    if not DATABASE_URL:
-        return []
-
-    conexion = psycopg2.connect(DATABASE_URL)
-    cursor = conexion.cursor()
-    
-    consulta = """
-        SELECT 
-            p.id, 
-            p.nombre, 
-            p.precio, 
-            p.stock, 
-            p.categoria
-        FROM productos p
-        WHERE 1=1
-    """
-    
-    parametros = []
     if busqueda:
-        consulta += " AND p.nombre ILIKE %s "
-        parametros.append(f"%{busqueda}%")
-        
-    consulta += " ORDER BY p.categoria, p.nombre;"
+        query = query.ilike("nombre", f"%{busqueda}%")
     
-    cursor.execute(consulta, parametros)
-    filas = cursor.fetchall()
-    conexion.close()
+    # Ejecutamos la consulta
+    response = query.order("categoria").order("nombre").execute()
+    filas = response.data
     
     productos_procesados = []
-    for f in filas:
-        p_id, nombre, precio, stock, categoria = f
-        ruta_img = encontrar_imagen_producto(p_id)
-        productos_procesados.append((p_id, nombre, float(precio), stock, categoria, ruta_img))
+    for p in filas:
+        # Supabase devuelve un diccionario, adaptamos para que tu plantilla funcione
+        ruta_img = encontrar_imagen_producto(p['id'])
+        productos_procesados.append((
+            p['id'], p['nombre'], float(p['precio']), 
+            p['stock'], p['categoria'], ruta_img
+        ))
         
     return productos_procesados
 
