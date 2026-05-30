@@ -53,10 +53,10 @@ def obtener_productos_con_categorias(busqueda=""):
         # Se añadió un bloque 'with' para cerrar la conexión automáticamente
         with psycopg2.connect(DATABASE_URL) as conexion:
             with conexion.cursor() as cursor:
-                # 1. Agregué comillas dobles en "Productos" para respetar el nombre de la tabla
+                # 1. Agregué comillas dobles en "productos" para respetar el nombre de la tabla
                 consulta = """
                     SELECT id, nombre, precio, stock, categoria
-                    FROM "Productos"
+                    FROM "productos"
                     WHERE 1=1
                 """
                 parametros = []
