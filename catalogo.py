@@ -45,50 +45,44 @@ def encontrar_imagen_producto(producto_id):
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
 def obtener_productos_con_categorias(busqueda=""):
-    # Render leerá la URL de la variable que configuraste en su panel
     DATABASE_URL = os.getenv("DATABASE_URL")
-    
-    # Si por error no configuraste la variable en Render, esto ayuda a evitar errores
     if not DATABASE_URL:
         return []
 
-    conexion = psycopg2.connect(DATABASE_URL)
-    cursor = conexion.cursor()
-    
-    consulta = """
-        SELECT 
-            p.id, 
-            p.nombre, 
-            p.precio, 
-            p.stock, 
-            p.categoria
-        FROM productos p
-        WHERE 1=1
-    """
-    
-    parametros = []
-    if busqueda:
-        consulta += " AND p.nombre LIKE ? "
-        parametros.append(f"%{busqueda}%")
-        
-    consulta += " ORDER BY p.categoria, p.nombre;"
-    
-    cursor.execute(consulta, parametros)
-    filas = cursor.fetchall()
-    conexion.close()
-    
-    productos_procesados = []
-    for f in filas:
-        p_id = f[0]
-        nombre = f[1]
-        precio = f[2]
-        stock = f[3]
-        categoria = f[4]
-        ruta_img = encontrar_imagen_producto(p_id)
-        
-        productos_procesados.append((p_id, nombre, precio, stock, categoria, ruta_img))
-        
-    return productos_procesados
+    try:
+        # Se añadió un bloque 'with' para cerrar la conexión automáticamente
+        with psycopg2.connect(DATABASE_URL) as conexion:
+            with conexion.cursor() as cursor:
+                # 1. Agregué comillas dobles en "Productos" para respetar el nombre de la tabla
+                consulta = """
+                    SELECT id, nombre, precio, stock, categoria
+                    FROM "Productos"
+                    WHERE 1=1
+                """
+                parametros = []
+                
+                if busqueda:
+                    # 2. CAMBIO CRÍTICO: 'LIKE' -> 'ILIKE' (insensible a mayúsculas)
+                    # 3. CAMBIO CRÍTICO: '?' -> '%s' (sintaxis correcta de PostgreSQL)
+                    consulta += " AND nombre ILIKE %s " 
+                    parametros.append(f"%{busqueda}%")
+                
+                consulta += " ORDER BY categoria, nombre;"
+                
+                cursor.execute(consulta, parametros)
+                filas = cursor.fetchall()
+                
+                productos_procesados = []
+                for f in filas:
+                    p_id, nombre, precio, stock, categoria = f
+                    ruta_img = encontrar_imagen_producto(p_id)
+                    productos_procesados.append((p_id, nombre, precio, stock, categoria, ruta_img))
+                    
+                return productos_procesados
+    except Exception as e:
+        # Esto te ayudará a ver errores reales en la consola de Render
+        print(f"Error de conexión a Supabase: {e}")
+        return []
 
 # Interfaz Web Principal
 PLANTILLA_HTML = """
