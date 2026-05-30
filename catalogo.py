@@ -48,12 +48,6 @@ def encontrar_imagen_producto(producto_id):
                 
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
-
-# Inicializa el cliente (usando las variables que configuraste en Render)
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
-supabase = create_client(url, key)
-
 def obtener_productos_con_categorias(busqueda=""):
     # En lugar de psycopg2, usamos la API de Supabase
     query = supabase.table("productos").select("*")
