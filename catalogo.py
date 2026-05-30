@@ -43,11 +43,6 @@ def encontrar_imagen_producto(producto_id):
                 
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
-def encontrar_imagen_producto(p_id):
-    # Aquí debería estar la lógica que ya tenías para buscar la imagen
-    # Si no la tienes definida, puedes devolver una ruta por defecto temporalmente
-    return f"ruta/a/tu/imagen/{p_id}.jpg"
-
 def obtener_productos_con_categorias(busqueda=""):
     DATABASE_URL = os.getenv("DATABASE_URL")
     
