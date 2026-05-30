@@ -484,13 +484,12 @@ PLANTILLA_HTML = """
 </body>
 </html>
 """
-
-# Bloque AJAX para recarga interactiva de productos (CORREGIDO EL NOMBRE VISIBLE)
+# Bloque AJAX para recarga interactiva de productos (CORREGIDO PARA ACCEDER POR NOMBRE)
 PLANTILLA_PRODUCTOS_AJAX = """
 {% if productos %}
     {% set categorias_procesadas = [] %}
     {% for p in productos %}
-        {% set cat_actual = p[4] if p[4] else 'Sin Categoría' %}
+        {% set cat_actual = p.categoria if p.categoria else 'Sin Categoría' %}
         {% if cat_actual not in categorias_procesadas %}
             {% if categorias_procesadas.append(cat_actual) %}{% endif %}
             
@@ -498,29 +497,29 @@ PLANTILLA_PRODUCTOS_AJAX = """
                 <div class="titulo-categoria">{{ cat_actual }}</div>
                 <div class="grid">
                     {% for prod in productos %}
-                        {% set prod_cat = prod[4] if prod[4] else 'Sin Categoría' %}
+                        {% set prod_cat = prod.categoria if prod.categoria else 'Sin Categoría' %}
                         {% if prod_cat == cat_actual %}
                         
-                        <div class="card {% if prod[3] <= 0 %}agotado{% endif %}">
+                        <div class="card {% if prod.stock <= 0 %}agotado{% endif %}">
                             <div class="img-contenedor">
-                                {% if prod[3] <= 0 %}
+                                {% if prod.stock <= 0 %}
                                     <div class="badge-agotado">Agotado</div>
                                 {% endif %}
-                                <img class="img-producto" src="{{ prod[5] }}" alt="{{ prod[1] }}">
+                                <img class="img-producto" src="{{ prod.imagen }}" alt="{{ prod.nombre }}">
                             </div>
                             <div class="info-contenedor">
-                                <div class="nombre">{{ prod[1] }}</div>
+                                <div class="nombre">{{ prod.nombre }}</div>
                                 <div>
-                                    <div class="precio">${{ "{:,.2f}".format(prod[2]) }}</div>
+                                    <div class="precio">${{ "{:,.2f}".format(prod.precio) }}</div>
                                     
-                                    {% if prod[3] > 0 %}
+                                    {% if prod.stock > 0 %}
                                         <div style="height: 12px;"></div> 
                                         <div class="selector-cantidad">
-                                            <button type="button" class="btn-modificar btn-restar" data-id="{{ prod[0] }}">−</button>
-                                            <input type="number" id="cant-{{ prod[0] }}" class="input-cantidad" value="1" min="1" max="{{ prod[3] }}" readonly>
-                                            <button type="button" class="btn-modificar btn-sumar" data-id="{{ prod[0] }}">+</button>
+                                            <button type="button" class="btn-modificar btn-restar" data-id="{{ prod.id }}">−</button>
+                                            <input type="number" id="cant-{{ prod.id }}" class="input-cantidad" value="1" min="1" max="{{ prod.stock }}" readonly>
+                                            <button type="button" class="btn-modificar btn-sumar" data-id="{{ prod.id }}">+</button>
                                         </div>
-                                        <button class="btn-carrito" onclick="agregarAlCarrito({{ prod[0] }}, '{{ prod[1] }}', {{ prod[2] }}, {{ prod[3] }} )">
+                                        <button class="btn-carrito" onclick="agregarAlCarrito({{ prod.id }}, '{{ prod.nombre }}', {{ prod.precio }}, {{ prod.stock }})">
                                             ➕ Agregar al carrito
                                         </button>
                                     {% else %}
@@ -538,7 +537,7 @@ PLANTILLA_PRODUCTOS_AJAX = """
         {% endif %}
     {% endfor %}
 {% else %}
-    <div class="sin-resultados">❌ No se encontraron productos que coincidan.</div>
+    <div class="sin-resultados">❌ No se encontraron productos o hubo un error de conexión.</div>
 {% endif %}
 """
 
@@ -547,11 +546,14 @@ def home():
     try:
         buscar_ajax = request.args.get('buscar_ajax', None)
         
+        # Obtenemos los productos
+        lista_productos = obtener_productos_con_categorias(buscar_ajax)
+        
+        # Si es una petición AJAX, renderizamos solo el grid
         if buscar_ajax is not None:
-            lista_productos = obtener_productos_con_categorias(buscar_ajax)
             return render_template_string(PLANTILLA_PRODUCTOS_AJAX, productos=lista_productos)
         
-        lista_productos = obtener_productos_con_categorias("")
+        # Si es carga inicial, renderizamos todo
         html_productos_inicial = render_template_string(PLANTILLA_PRODUCTOS_AJAX, productos=lista_productos)
         
         return render_template_string(
@@ -560,7 +562,5 @@ def home():
             html_productos_inicial=html_productos_inicial
         )
     except Exception as e:
-        return f"<h3>Error al cargar el catálogo: {e}</h3>", 500
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+        # Esto te mostrará el error real en el navegador si algo falla
+        return f"<h3>Error al cargar: {e}</h3>", 500
