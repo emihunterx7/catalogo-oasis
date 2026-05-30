@@ -45,11 +45,14 @@ def encontrar_imagen_producto(producto_id):
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
 def obtener_productos_con_categorias(busqueda=""):
-    """Lee todos los productos uniendo con categorías para el catálogo."""
-    ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_db = os.path.join(ruta_actual, "productos.db")
+    # Render leerá la URL de la variable que configuraste en su panel
+    DATABASE_URL = os.getenv("DATABASE_URL")
     
-    conexion = sqlite3.connect(ruta_db)
+    # Si por error no configuraste la variable en Render, esto ayuda a evitar errores
+    if not DATABASE_URL:
+        return []
+
+    conexion = psycopg2.connect(DATABASE_URL)
     cursor = conexion.cursor()
     
     consulta = """
