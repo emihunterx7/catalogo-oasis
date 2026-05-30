@@ -3,8 +3,8 @@ from flask import Flask, render_template_string, request
 import os
 from supabase import create_client
 
-url = os.environ.get("https://hkuheednquclcnjdfcva.supabase.co")
-key = os.environ.get("sb_secret_P4yeqt85BP4Oo3zbJJYvww_rRjpIf0v")
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY")
 supabase = create_client(url, key)
 
 app = Flask(__name__)
