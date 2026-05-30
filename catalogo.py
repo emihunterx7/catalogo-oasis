@@ -62,7 +62,7 @@ def obtener_productos_con_categorias(busqueda=""):
             p.precio, 
             p.stock, 
             p.categoria
-        FROM Productos p
+        FROM productos p
         WHERE 1=1
     """
     
