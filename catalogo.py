@@ -43,22 +43,49 @@ def encontrar_imagen_producto(producto_id):
                 
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
-def obtener_productos():
-    # Obtener la URL de la variable de entorno
-    db_url = os.getenv("DATABASE_URL")
+def encontrar_imagen_producto(p_id):
+    # Aquí debería estar la lógica que ya tenías para buscar la imagen
+    # Si no la tienes definida, puedes devolver una ruta por defecto temporalmente
+    return f"ruta/a/tu/imagen/{p_id}.jpg"
+
+def obtener_productos_con_categorias(busqueda=""):
+    DATABASE_URL = os.getenv("DATABASE_URL")
     
-    # Conectar usando psycopg2 (PostgreSQL)
-    conn = psycopg2.connect(db_url)
-    cur = conn.cursor()
+    if not DATABASE_URL:
+        return []
+
+    conexion = psycopg2.connect(DATABASE_URL)
+    cursor = conexion.cursor()
     
-    # Asegúrate de que el nombre de la tabla sea exacto
-    # Cambia '?' por '%s' para PostgreSQL
-    cur.execute("SELECT id, nombre, precio, stock, categoria FROM productos")
+    consulta = """
+        SELECT 
+            p.id, 
+            p.nombre, 
+            p.precio, 
+            p.stock, 
+            p.categoria
+        FROM productos p
+        WHERE 1=1
+    """
     
-    productos = cur.fetchall()
-    cur.close()
-    conn.close()
-    return productos
+    parametros = []
+    if busqueda:
+        consulta += " AND p.nombre ILIKE %s "
+        parametros.append(f"%{busqueda}%")
+        
+    consulta += " ORDER BY p.categoria, p.nombre;"
+    
+    cursor.execute(consulta, parametros)
+    filas = cursor.fetchall()
+    conexion.close()
+    
+    productos_procesados = []
+    for f in filas:
+        p_id, nombre, precio, stock, categoria = f
+        ruta_img = encontrar_imagen_producto(p_id)
+        productos_procesados.append((p_id, nombre, float(precio), stock, categoria, ruta_img))
+        
+    return productos_procesados
 
 # Interfaz Web Principal
 PLANTILLA_HTML = """
