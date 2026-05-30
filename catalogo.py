@@ -1,5 +1,5 @@
 from flask import Flask, render_template_string, request
-import psycopg2
+
 import os
 from supabase import create_client
 
@@ -48,27 +48,23 @@ def encontrar_imagen_producto(producto_id):
                 
     return "https://placehold.co/240x180/eef2f5/7f8c8d?text=Sin+Foto"
 
+
+# Inicializa el cliente (usando las variables que configuraste en Render)
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY")
+supabase = create_client(url, key)
+
 def obtener_productos_con_categorias(busqueda=""):
-    # Usamos la API de Supabase en lugar de psycopg2
+    # En lugar de psycopg2, usamos la API de Supabase
     query = supabase.table("productos").select("*")
     
     if busqueda:
         query = query.ilike("nombre", f"%{busqueda}%")
     
-    # Ejecutamos la consulta
-    response = query.order("categoria").order("nombre").execute()
-    filas = response.data
+    response = query.order("categoria").execute()
     
-    productos_procesados = []
-    for p in filas:
-        # Supabase devuelve un diccionario, adaptamos para que tu plantilla funcione
-        ruta_img = encontrar_imagen_producto(p['id'])
-        productos_procesados.append((
-            p['id'], p['nombre'], float(p['precio']), 
-            p['stock'], p['categoria'], ruta_img
-        ))
-        
-    return productos_procesados
+    # response.data contiene tus productos
+    return response.data
 
 # Interfaz Web Principal
 PLANTILLA_HTML = """
