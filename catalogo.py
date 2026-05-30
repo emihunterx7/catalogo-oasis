@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string, request
 import sqlite3
+import psycopg2
 import os
 
 app = Flask(__name__)
@@ -53,22 +54,21 @@ def obtener_productos_con_categorias(busqueda=""):
     
     consulta = """
         SELECT 
-            p.ProductoId, 
-            p.Nombre, 
-            p.Precio, 
-            p.Stock, 
-            c.Nombre AS Categoria
+            p.id, 
+            p.nombre, 
+            p.precio, 
+            p.stock, 
+            p.categoria
         FROM Productos p
-        LEFT JOIN Categorias c ON p.CategoriaId = c.CategoriaId
         WHERE 1=1
     """
     
     parametros = []
     if busqueda:
-        consulta += " AND p.Nombre LIKE ? "
+        consulta += " AND p.nombre LIKE ? "
         parametros.append(f"%{busqueda}%")
         
-    consulta += " ORDER BY c.Nombre, p.Nombre;"
+    consulta += " ORDER BY p.categoria, p.nombre;"
     
     cursor.execute(consulta, parametros)
     filas = cursor.fetchall()
