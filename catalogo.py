@@ -11,13 +11,13 @@ app = Flask(__name__)
 # ==========================================
 BANNER_OFERTAS = [
     {
-        "titulo": "🔥 ¡Nuevos Ingresos Anime!",
+        "titulo": "🔥 ¡no stock!",
         "descripcion": "Llegaron las últimas figuras exclusivas. ¡No te quedes sin la tuya!",
         "imagen": "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=800&auto=format&fit=crop&q=60",
         "badge": "NUEVO"
     },
     {
-        "titulo": "⚡ Ofertas de la Semana",
+        "titulo": "⚡ ",
         "descripcion": "Descuentos brutales pagando mediante transferencia con Mercado Pago.",
         "imagen": "https://images.unsplash.com/photo-1506157786151-b8491531f063?w=800&auto=format&fit=crop&q=60",
         "badge": "PROMO 10%"
