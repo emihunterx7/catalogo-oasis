@@ -17,19 +17,19 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 def index():
     try:
         # 1. Traer todos los productos de Supabase ordenados alfabéticamente por nombre
-        response = supabase.table("Productos").select("*").order("nombre").execute()
+        response = supabase.table("Productos").select("*").order("Nombre").execute()
         productos = response.data
         
         # 2. Extraer las categorías únicas de los productos para armar los botones de filtro
-        categorias = sorted(list(set([p['categoria'] for p in productos if p.get('categoria')])))
+        Categorias = sorted(list(set([p['Categoria'] for p in Productos if p.get('Categoria')])))
         
     except Exception as e:
         print(f"Error al conectar o leer Supabase: {e}")
-        productos = []
-        categorias = []
+        Productos = []
+        Categorias = []
         
     # 3. Renderizar la plantilla HTML pasándole los datos dinámicos
-    return render_template('index.html', productos=productos, categorias=categorias)
+    return render_template('index.html', Productos=Productos, Categorias=Categorias)
 
 if __name__ == '__main__':
     # Localmente va a correr en el puerto 5000 (http://127.0.0.1:5000)
