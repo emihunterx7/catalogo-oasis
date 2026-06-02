@@ -46,7 +46,7 @@ def encontrar_imagen_producto(Producto_id):
 def obtener_productos_con_categorias(busqueda=""):
     """Lee todos los productos uniendo con categorías para el catálogo."""
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_db = os.path.join(ruta_actual, "productos.db")
+    ruta_db = os.path.join(ruta_actual, "Productos.db")
     
     conexion = sqlite3.connect(ruta_db)
     cursor = conexion.cursor()
