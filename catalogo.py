@@ -29,7 +29,7 @@ BANNER_OFERTAS = [
     }
 ]
 
-def encontrar_imagen_producto(Producto_id):
+def encontrar_imagen_producto(ProductoId):
     """Busca en la carpeta static/imagenes si existe el archivo con cualquier extensión."""
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
     carpeta_imagenes = os.path.join(ruta_actual, "static", "imagenes")
@@ -37,7 +37,7 @@ def encontrar_imagen_producto(Producto_id):
     
     if os.path.exists(carpeta_imagenes):
         for ext in extensiones:
-            nombre_archivo = f"{Producto_id}{ext}"
+            nombre_archivo = f"{ProductoId}{ext}"
             if os.path.exists(os.path.join(carpeta_imagenes, nombre_archivo)):
                 return f"/static/imagenes/{nombre_archivo}"
                 
